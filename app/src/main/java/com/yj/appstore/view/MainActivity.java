@@ -11,13 +11,15 @@ import com.yj.appstore.R;
 import com.yj.appstore.adapter.AppListAdapter;
 import com.yj.appstore.model.bean.App;
 import com.yj.appstore.presenter.AppListPresenterImpl;
+import com.yj.appstore.util.ToastUtil;
+import com.yj.appstore.v.recycle.YJRecyclerView;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements Contract.AppListView , SwipeRefreshLayout.OnRefreshListener{
+public class MainActivity extends AppCompatActivity implements Contract.AppListView , SwipeRefreshLayout.OnRefreshListener, YJRecyclerView.LoadMoreListener{
     @BindView(R.id.rv)
     RecyclerView rv;
     @BindView(R.id.srl)
@@ -30,12 +32,26 @@ public class MainActivity extends AppCompatActivity implements Contract.AppListV
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
+        // init
         srl.setOnRefreshListener(this);
         appListPresenter = new AppListPresenterImpl(this);
         adapter = new AppListAdapter();
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
+        // listener
+        setListener();
+
+        appListPresenter.refresh();
+    }
+
+    private void setListener() {
+        adapter.setClickListenerImpl(new AppListAdapter.IClickListener() {
+            @Override
+            public void onClick(String packageId) {
+                AppInfoActivity.startAppInfoActivity(MainActivity.this, packageId
+                );
+            }
+        });
     }
 
     @Override
@@ -61,6 +77,22 @@ public class MainActivity extends AppCompatActivity implements Contract.AppListV
 
     @Override
     public void onRefreshFailure(String msg) {
+        ToastUtil.show(msg);
+    }
 
+    @Override
+    public void onLoadMoreSuccess(List<App> data) {
+        adapter.addData(data);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoadMoreFailure(String msg) {
+        ToastUtil.show(msg);
+    }
+
+    @Override
+    public void onLoadMore() {
+        appListPresenter.loadMore();
     }
 }
