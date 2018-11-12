@@ -7,11 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -23,7 +20,6 @@ import com.yj.appstore.model.bean.AppInfo;
 import com.yj.appstore.model.bean.Comment;
 import com.yj.appstore.network.NetClient;
 import com.yj.appstore.presenter.AppInfoPresenterImpl;
-import com.yj.appstore.util.DensityUtil;
 import com.yj.appstore.util.ToastUtil;
 import com.yj.appstore.v.CommentPopWindow;
 import com.yj.appstore.v.recycle.YJRecyclerView;
@@ -91,7 +87,7 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
         commentPopWindow.setListener(new CommentPopWindow.ICommentPopWindowListener() {
             @Override
             public void onClickComment(String comment) {
-                // todo
+                appInfoPresenter.commitComment(packageId, comment);
             }
         });
     }
@@ -147,6 +143,18 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
 
     @Override
     public void loadMoreCommentsFailure(String msg) {
+        ToastUtil.show(msg);
+    }
+
+    @Override
+    public void commitCommentSuccess() {
+        ToastUtil.show("评论成功！");
+        commentPopWindow.dismiss();
+        appInfoPresenter.refreshComments(packageId);
+    }
+
+    @Override
+    public void commitCommentFailure(String msg) {
         ToastUtil.show(msg);
     }
 

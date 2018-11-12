@@ -2,6 +2,8 @@ package com.yj.appstore;
 
 import android.app.Application;
 
+import com.yj.appstore.util.SpUtil;
+
 public class App extends Application{
     static App app;
     @Override

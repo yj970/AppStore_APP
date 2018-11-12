@@ -11,7 +11,7 @@ import java.util.List;
 
 import retrofit2.Call;
 
-public class AppListModel {
+public class AppListModel extends BaseModel{
     private int page = 1;//页码
     final int row = 10;//行数
 

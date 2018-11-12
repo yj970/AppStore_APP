@@ -5,21 +5,30 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.TextView;
 
+import com.yj.appstore.Constant;
 import com.yj.appstore.Contract;
 import com.yj.appstore.R;
 import com.yj.appstore.adapter.AppListAdapter;
+import com.yj.appstore.event.RefreshEventBarEvent;
 import com.yj.appstore.model.bean.App;
 import com.yj.appstore.presenter.AppListPresenterImpl;
+import com.yj.appstore.util.SpUtil;
 import com.yj.appstore.util.ToastUtil;
 import com.yj.appstore.v.recycle.YJRecyclerView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
-public class MainActivity extends AppCompatActivity implements Contract.AppListView , SwipeRefreshLayout.OnRefreshListener, YJRecyclerView.LoadMoreListener{
+public class MainActivity extends BaseTitleActivity implements Contract.AppListView, SwipeRefreshLayout.OnRefreshListener, YJRecyclerView.LoadMoreListener {
     @BindView(R.id.rv)
     RecyclerView rv;
     @BindView(R.id.srl)
@@ -33,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements Contract.AppListV
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         // init
+        setTitle("应用列表");
         srl.setOnRefreshListener(this);
         appListPresenter = new AppListPresenterImpl(this);
         adapter = new AppListAdapter();
@@ -43,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements Contract.AppListV
 
         appListPresenter.refresh();
     }
+
 
     private void setListener() {
         adapter.setClickListenerImpl(new AppListAdapter.IClickListener() {

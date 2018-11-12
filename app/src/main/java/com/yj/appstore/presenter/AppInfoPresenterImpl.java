@@ -85,4 +85,27 @@ public class AppInfoPresenterImpl implements Contract.AppInfoPresenter {
             }
         });
     }
+
+    @Override
+    public void commitComment(String packageId, String comment) {
+        view.showLoading();
+        String token = model.getToken();
+        if (token != null) {
+            model.commitComment(packageId, comment, token, new CommonListener<Object>() {
+                @Override
+                public void onSuccess(Object o) {
+                    view.hideLoading();
+                    view.commitCommentSuccess();
+                }
+
+                @Override
+                public void onFailure(String msg) {
+                    view.hideLoading();
+                    view.commitCommentFailure(msg);
+                }
+            });
+        } else {
+            view.commitCommentFailure("请登录！");
+        }
+    }
 }

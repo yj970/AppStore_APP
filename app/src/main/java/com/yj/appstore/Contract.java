@@ -7,15 +7,24 @@ import com.yj.appstore.model.bean.Comment;
 import java.util.List;
 
 public class Contract {
-
     public interface LoginRegisterView {
         void showLoginAndRegister();
         void exit();
+
+        void showLoading();
+
+        void hideLoading();
+
+        void loginSuccess();
+
+        void loginFailure(String msg);
     }
 
     public interface LoginRegisterPresenter {
         void showLoginAndRegister();
         void exit();
+
+        void login(String userName, String password);
     }
 
     public interface AppListView {
@@ -52,6 +61,10 @@ public class Contract {
         void loadMoreCommentsSuccess(List<Comment> comments);
 
         void loadMoreCommentsFailure(String msg);
+
+        void commitCommentSuccess();
+
+        void commitCommentFailure(String msg);
     }
     public interface AppInfoPresenter{
         void refresh(String packageId);
@@ -59,5 +72,7 @@ public class Contract {
         void refreshComments(String packageId);
 
         void loadMoreComments(String packageId);
+
+        void commitComment(String packageId, String comment);
     }
 }

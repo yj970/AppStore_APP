@@ -13,7 +13,7 @@ import java.util.List;
 
 import retrofit2.Call;
 
-public class AppInfoModel {
+public class AppInfoModel extends BaseModel{
     private int page = 1;
     private final int row = 10;
     /**
@@ -76,5 +76,28 @@ public class AppInfoModel {
     public void requestLoadMoreComments(String packageId, CommonListener<List<Comment>> commonListener) {
         page++;
         getComments(packageId, commonListener);
+    }
+
+    /**
+     * 提交评论
+     * @param packageId
+     * @param comment
+     * @param token
+     * @param commonListener
+     */
+    public void commitComment(String packageId, String comment, String token, final CommonListener<Object> commonListener) {
+        AppService service = NetClient.getInstance().create(AppService.class);
+        Call<CommonResponse<Object>> call = service.commitComment(packageId, comment, token);
+        call.enqueue(new CommonCallBack<Object>() {
+            @Override
+            public void onSuccess(Object o) {
+                commonListener.onSuccess(o);
+            }
+
+            @Override
+            public void onFailure(String msg) {
+                commonListener.onFailure(msg);
+            }
+        });
     }
 }

@@ -8,7 +8,10 @@ import com.yj.appstore.model.bean.CommonResponse;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface AppService {
@@ -38,4 +41,15 @@ public interface AppService {
      */
     @GET("app/queryCommentList/{packageId}/{page}/{row}")
     Call<CommonResponse<List<Comment>>> getCommentList(@Path("packageId") String packageId, @Path("page") String page, @Path("row") String row);
+
+    /**
+     * 提交评论
+     * @param packageId
+     * @param comment
+     * @param token
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("app/comment")
+    Call<CommonResponse<Object>> commitComment(@Field("packageId") String packageId, @Field("comment") String comment, @Field("token") String token);
 }

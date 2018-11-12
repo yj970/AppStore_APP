@@ -60,6 +60,10 @@ public class CommentPopWindow {
         return height;
     }
 
+    public void dismiss() {
+        mPopupWindow.dismiss();
+    }
+
     public interface ICommentPopWindowListener{
         void onClickComment(String comment);
     }
