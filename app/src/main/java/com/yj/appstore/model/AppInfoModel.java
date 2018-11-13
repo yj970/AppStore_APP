@@ -1,5 +1,9 @@
 package com.yj.appstore.model;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+
 import com.yj.appstore.App;
 import com.yj.appstore.api.AppService;
 import com.yj.appstore.listener.CommonListener;
@@ -7,8 +11,11 @@ import com.yj.appstore.model.bean.AppInfo;
 import com.yj.appstore.model.bean.Comment;
 import com.yj.appstore.model.bean.CommonResponse;
 import com.yj.appstore.network.CommonCallBack;
+import com.yj.appstore.network.DownLoadListener;
+import com.yj.appstore.network.DownloadUtil;
 import com.yj.appstore.network.NetClient;
 
+import java.io.File;
 import java.util.List;
 
 import retrofit2.Call;
@@ -16,6 +23,8 @@ import retrofit2.Call;
 public class AppInfoModel extends BaseModel{
     private int page = 1;
     private final int row = 10;
+    private AppInfo appInfo;
+
     /**
      * 获取app详情
      * @param packageId 包名
@@ -27,6 +36,7 @@ public class AppInfoModel extends BaseModel{
         call.enqueue(new CommonCallBack<AppInfo>() {
             @Override
             public void onSuccess(AppInfo appInfo) {
+                AppInfoModel.this.appInfo = appInfo;
                 commonListener.onSuccess(appInfo);
             }
 
@@ -99,5 +109,26 @@ public class AppInfoModel extends BaseModel{
                 commonListener.onFailure(msg);
             }
         });
+    }
+
+    /**
+     * 下载apk文件
+     * @param loadListener
+     */
+    public void downloadFile(DownLoadListener loadListener) {
+        String url = NetClient.baseUrl+appInfo.getDownloadUrl();
+        DownloadUtil.getInstance().downloadApk(url, loadListener);
+    }
+
+    /**
+     * 安装apk
+     * @param activity
+     * @param filePath
+     * todo 兼容N版本
+     */
+    public void installApk(Activity activity, String filePath) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(new File(filePath)), "application/vnd.android.package-archive");
+        activity.startActivity(intent);
     }
 }

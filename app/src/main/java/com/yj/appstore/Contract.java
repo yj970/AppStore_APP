@@ -1,5 +1,7 @@
 package com.yj.appstore;
 
+import android.app.Activity;
+
 import com.yj.appstore.model.bean.App;
 import com.yj.appstore.model.bean.AppInfo;
 import com.yj.appstore.model.bean.Comment;
@@ -74,5 +76,7 @@ public class Contract {
         void loadMoreComments(String packageId);
 
         void commitComment(String packageId, String comment);
+
+        void downloadFile(Activity activity);
     }
 }

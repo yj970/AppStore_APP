@@ -1,10 +1,14 @@
 package com.yj.appstore.presenter;
 
+import android.app.Activity;
+
 import com.yj.appstore.Contract;
 import com.yj.appstore.listener.CommonListener;
 import com.yj.appstore.model.AppInfoModel;
 import com.yj.appstore.model.bean.AppInfo;
 import com.yj.appstore.model.bean.Comment;
+import com.yj.appstore.network.DownLoadListener;
+import com.yj.appstore.util.L;
 
 
 import java.util.List;
@@ -107,5 +111,27 @@ public class AppInfoPresenterImpl implements Contract.AppInfoPresenter {
         } else {
             view.commitCommentFailure("请登录！");
         }
+    }
+
+    @Override
+    public void downloadFile(final Activity activity) {
+        view.showLoading();
+        model.downloadFile(new DownLoadListener() {
+            @Override
+            public void onSuccess(String filePath) {
+                L.d("下载成功");
+                model.installApk(activity, filePath);
+            }
+
+            @Override
+            public void onFailure(String msg) {
+                L.d("下载失败");
+            }
+
+            @Override
+            public void onProgress(int progress) {
+                L.d(progress+"..");
+            }
+        });
     }
 }

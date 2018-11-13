@@ -83,7 +83,7 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
         setListener();
     }
 
-    private void setListener(){
+    private void setListener() {
         commentPopWindow.setListener(new CommentPopWindow.ICommentPopWindowListener() {
             @Override
             public void onClickComment(String comment) {
@@ -171,5 +171,10 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
     @OnClick(R.id.tv_comment)
     public void onViewClicked() {
         commentPopWindow.show();
+    }
+
+    @OnClick(R.id.btn_download)
+    public void onDownloadClicked() {
+        appInfoPresenter.downloadFile(this);
     }
 }
