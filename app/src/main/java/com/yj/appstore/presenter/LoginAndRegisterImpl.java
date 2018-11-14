@@ -1,7 +1,7 @@
 package com.yj.appstore.presenter;
 
 import com.yj.appstore.Contract;
-import com.yj.appstore.event.RefreshEventBarEvent;
+import com.yj.appstore.event.RefreshTitleBarEvent;
 import com.yj.appstore.listener.CommonListener;
 import com.yj.appstore.model.LoginAndRegisterModel;
 import com.yj.appstore.model.bean.User;
@@ -35,7 +35,7 @@ public class LoginAndRegisterImpl implements Contract.LoginRegisterPresenter{
             public void onSuccess(User user) {
                 view.hideLoading();
                 model.saveUserAndToken(user);
-                EventBus.getDefault().post(new RefreshEventBarEvent());
+                EventBus.getDefault().post(new RefreshTitleBarEvent());
                 view.loginSuccess();
             }
 

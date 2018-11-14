@@ -67,9 +67,21 @@ public class Contract {
         void commitCommentSuccess();
 
         void commitCommentFailure(String msg);
+
+        void showDownloading();
+
+        void hideDownloading();
+
+        void showDownloadFailure(String msg);
+
+        void showDownloadProgress(int progress);
+
+        void showDownloadBtnAndHideOpen();
+
+        void showOpenBtnAndHideDownload();
     }
     public interface AppInfoPresenter{
-        void refresh(String packageId);
+        void refresh(Activity activity, String packageId);
 
         void refreshComments(String packageId);
 
@@ -78,5 +90,7 @@ public class Contract {
         void commitComment(String packageId, String comment);
 
         void downloadFile(Activity activity);
+
+        void checkInstall(Activity activity, String packageId);
     }
 }

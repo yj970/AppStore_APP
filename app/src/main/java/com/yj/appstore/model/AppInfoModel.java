@@ -2,6 +2,7 @@ package com.yj.appstore.model;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.net.Uri;
 
 import com.yj.appstore.App;
@@ -130,5 +131,20 @@ public class AppInfoModel extends BaseModel{
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(new File(filePath)), "application/vnd.android.package-archive");
         activity.startActivity(intent);
+    }
+
+    /**
+     * 检查该app是否已安装
+     * @param packageId
+     * @return
+     */
+    public boolean checkIsInstall(Activity activity, String packageId) {
+        List<PackageInfo> packageInfos = activity.getPackageManager().getInstalledPackages(0);
+        for (PackageInfo info : packageInfos) {
+            if (info.packageName.equals(packageId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.yj.appstore.Constant;
 import com.yj.appstore.R;
-import com.yj.appstore.event.RefreshEventBarEvent;
+import com.yj.appstore.event.RefreshTitleBarEvent;
 import com.yj.appstore.util.SpUtil;
 import com.yj.appstore.view.LoginActivity;
 
@@ -79,7 +79,7 @@ public class TitleFragment extends Fragment{
             case R.id.tv_logout:
                 SpUtil.saveData(Constant.TOKEN, "");
                 SpUtil.saveData(Constant.USERNAME, "");
-                refreshTitleBar();
+                EventBus.getDefault().post(new RefreshTitleBarEvent());
                 break;
         }
     }
@@ -100,7 +100,7 @@ public class TitleFragment extends Fragment{
     }
 
     @Subscribe
-    public void acceptRefreshEventBar(RefreshEventBarEvent event) {
+    public void acceptRefreshEventBar(RefreshTitleBarEvent event) {
         refreshTitleBar();
     }
 

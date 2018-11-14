@@ -13,8 +13,6 @@ import com.yj.appstore.util.L;
 
 import java.util.List;
 
-import retrofit2.Call;
-
 public class AppInfoPresenterImpl implements Contract.AppInfoPresenter {
     private Contract.AppInfoView view;
     private AppInfoModel model;
@@ -26,10 +24,11 @@ public class AppInfoPresenterImpl implements Contract.AppInfoPresenter {
 
     /**
      * 获取app详情
+     * @param activity
      * @param packageId
      */
     @Override
-    public void refresh(String packageId) {
+    public void refresh(Activity activity, String packageId) {
         view.showLoading();
         model.requestAppInfo(packageId, new CommonListener<AppInfo>() {
             @Override
@@ -44,6 +43,21 @@ public class AppInfoPresenterImpl implements Contract.AppInfoPresenter {
                 view.loadAppInfoFailure(msg);
             }
         });
+    }
+
+    /**
+     * 检查安装情况
+     * @param activity
+     * @param packageId
+     */
+    @Override
+    public void checkInstall(Activity activity, String packageId) {
+        boolean isInstall = model.checkIsInstall(activity, packageId);
+        if (!isInstall) {
+            view.showDownloadBtnAndHideOpen();
+        } else {
+            view.showOpenBtnAndHideDownload();
+        }
     }
 
     /**
@@ -115,22 +129,22 @@ public class AppInfoPresenterImpl implements Contract.AppInfoPresenter {
 
     @Override
     public void downloadFile(final Activity activity) {
-        view.showLoading();
+        view.showDownloading();
         model.downloadFile(new DownLoadListener() {
             @Override
             public void onSuccess(String filePath) {
-                L.d("下载成功");
+                view.hideDownloading();
                 model.installApk(activity, filePath);
             }
 
             @Override
             public void onFailure(String msg) {
-                L.d("下载失败");
+                view.showDownloadFailure(msg);
             }
 
             @Override
             public void onProgress(int progress) {
-                L.d(progress+"..");
+                view.showDownloadProgress(progress);
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.yj.appstore.view;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,8 +8,10 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -30,7 +33,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AppInfoActivity extends AppCompatActivity implements Contract.AppInfoView, SwipeRefreshLayout.OnRefreshListener, YJRecyclerView.LoadMoreListener {
+public class AppInfoActivity extends BaseTitleActivity implements Contract.AppInfoView, SwipeRefreshLayout.OnRefreshListener, YJRecyclerView.LoadMoreListener {
 
     @BindView(R.id.iv_logo)
     ImageView ivLogo;
@@ -46,10 +49,13 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
     SwipeRefreshLayout srl;
     @BindView(R.id.tv_comment)
     TextView tvComment;
+    @BindView(R.id.btn_open)
+    Button btnOpen;
     private String packageId;
     private Contract.AppInfoPresenter appInfoPresenter;
     private CommentAdapter adapter;
     private CommentPopWindow commentPopWindow;
+    private ProgressDialog downloadView;
 
     public static void startAppInfoActivity(Context context, String packageId) {
         Intent intent = new Intent(context, AppInfoActivity.class);
@@ -67,6 +73,7 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
             packageId = getIntent().getStringExtra(Constant.PACKAGEID);
         }
 
+        setTitle("应用");
         srl.setOnRefreshListener(this);
 
         adapter = new CommentAdapter();
@@ -74,10 +81,14 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
         rv.setAdapter(adapter);
         rv.setLoadMoreListener(this);
 
+        downloadView = new ProgressDialog(this);
+        downloadView.setMessage("下载中...");
+        downloadView.setCanceledOnTouchOutside(false);
+
         commentPopWindow = new CommentPopWindow(this);
 
         appInfoPresenter = new AppInfoPresenterImpl(this);
-        appInfoPresenter.refresh(packageId);
+        appInfoPresenter.refresh(this, packageId);
         appInfoPresenter.refreshComments(packageId);
 
         setListener();
@@ -93,13 +104,19 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
     }
 
     @Override
-    public void showLoading() {
+    protected void onResume() {
+        super.onResume();
+        appInfoPresenter.checkInstall(this, packageId);
+    }
 
+    @Override
+    public void showLoading() {
+        loadingUtil.showLoading();
     }
 
     @Override
     public void hideLoading() {
-
+        loadingUtil.dismissLoading();
     }
 
     @Override
@@ -159,6 +176,38 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
     }
 
     @Override
+    public void showDownloading() {
+        downloadView.show();
+    }
+
+    @Override
+    public void hideDownloading() {
+        downloadView.dismiss();
+    }
+
+    @Override
+    public void showDownloadFailure(String msg) {
+        ToastUtil.show(msg);
+    }
+
+    @Override
+    public void showDownloadProgress(int progress) {
+        downloadView.setMessage("下载中.."+progress+"%");
+    }
+
+    @Override
+    public void showDownloadBtnAndHideOpen() {
+        btnDownload.setVisibility(View.VISIBLE);
+        btnOpen.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showOpenBtnAndHideDownload() {
+        btnDownload.setVisibility(View.GONE);
+        btnOpen.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void onRefresh() {
         appInfoPresenter.refreshComments(packageId);
     }
@@ -176,5 +225,11 @@ public class AppInfoActivity extends AppCompatActivity implements Contract.AppIn
     @OnClick(R.id.btn_download)
     public void onDownloadClicked() {
         appInfoPresenter.downloadFile(this);
+    }
+
+    @OnClick(R.id.btn_open)
+    public void onOpenClicked() {
+        Intent LaunchIntent = getPackageManager().getLaunchIntentForPackage(packageId);
+        startActivity(LaunchIntent);
     }
 }
