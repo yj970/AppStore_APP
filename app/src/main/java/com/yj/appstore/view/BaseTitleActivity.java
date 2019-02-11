@@ -18,7 +18,14 @@ public class BaseTitleActivity extends BaseActivity{
     public void setTitle(String title) {
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transition = manager.beginTransaction();
-        transition.replace(R.id.fl_title, TitleFragment.newInstance(title));
+        transition.replace(R.id.fl_title, TitleFragment.newInstance(title, true));
+        transition.commitAllowingStateLoss();
+    }
+
+    public void setTitle(String title, boolean isShowBackBtn) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transition = manager.beginTransaction();
+        transition.replace(R.id.fl_title, TitleFragment.newInstance(title, isShowBackBtn));
         transition.commitAllowingStateLoss();
     }
 }

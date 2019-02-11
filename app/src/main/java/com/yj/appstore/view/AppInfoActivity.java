@@ -5,13 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -19,13 +19,15 @@ import com.yj.appstore.Constant;
 import com.yj.appstore.Contract;
 import com.yj.appstore.R;
 import com.yj.appstore.adapter.CommentAdapter;
+import com.yj.appstore.fragment.AppCommentFragment;
+import com.yj.appstore.fragment.AppDetailFragment;
 import com.yj.appstore.model.bean.AppInfo;
 import com.yj.appstore.model.bean.Comment;
 import com.yj.appstore.network.NetClient;
 import com.yj.appstore.presenter.AppInfoPresenterImpl;
 import com.yj.appstore.util.ToastUtil;
 import com.yj.appstore.v.CommentPopWindow;
-import com.yj.appstore.v.recycle.YJRecyclerView;
+import com.yj.appstore.v.viewpager.LinePageIndicator;
 
 import java.util.List;
 
@@ -33,24 +35,18 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class AppInfoActivity extends BaseTitleActivity implements Contract.AppInfoView, SwipeRefreshLayout.OnRefreshListener, YJRecyclerView.LoadMoreListener {
+public class AppInfoActivity extends BaseTitleActivity implements Contract.AppInfoView {
 
     @BindView(R.id.iv_logo)
     ImageView ivLogo;
     @BindView(R.id.tv_name)
     TextView tvName;
-    @BindView(R.id.tv_packageId)
-    TextView tvPackageId;
     @BindView(R.id.btn_download)
     Button btnDownload;
-    @BindView(R.id.rv)
-    YJRecyclerView rv;
-    @BindView(R.id.srl)
-    SwipeRefreshLayout srl;
-    @BindView(R.id.tv_comment)
-    TextView tvComment;
     @BindView(R.id.btn_open)
     Button btnOpen;
+    @BindView(R.id.vp)
+    ViewPager vp;
     private String packageId;
     private Contract.AppInfoPresenter appInfoPresenter;
     private CommentAdapter adapter;
@@ -74,12 +70,28 @@ public class AppInfoActivity extends BaseTitleActivity implements Contract.AppIn
         }
 
         setTitle("应用");
-        srl.setOnRefreshListener(this);
+
+        //initViewPager
+        final Fragment[] fragments = new Fragment[2];
+        fragments[0] = AppDetailFragment.newInstance();
+        fragments[1] = AppCommentFragment.newInstance();
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        vp.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
+            @Override
+            public Fragment getItem(int position) {
+                return fragments[position];
+            }
+            @Override
+            public int getCount() {
+                return fragments.length;
+            }
+        });
+
+        LinePageIndicator linePageIndicator = (LinePageIndicator)findViewById(R.id.indicator);
+        linePageIndicator.setViewPager(vp);
 
         adapter = new CommentAdapter();
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        rv.setAdapter(adapter);
-        rv.setLoadMoreListener(this);
 
         downloadView = new ProgressDialog(this);
         downloadView.setMessage("下载中...");
@@ -90,6 +102,7 @@ public class AppInfoActivity extends BaseTitleActivity implements Contract.AppIn
         appInfoPresenter = new AppInfoPresenterImpl(this);
         appInfoPresenter.refresh(this, packageId);
         appInfoPresenter.refreshComments(packageId);
+
 
         setListener();
     }
@@ -122,7 +135,6 @@ public class AppInfoActivity extends BaseTitleActivity implements Contract.AppIn
     @Override
     public void loadAppInfoSuccess(AppInfo appInfo) {
         tvName.setText(appInfo.getAppName());
-        tvPackageId.setText(packageId);
         Glide.with(this).load(NetClient.baseUrl + appInfo.getLogoPicUrl()).into(ivLogo);
     }
 
@@ -133,12 +145,10 @@ public class AppInfoActivity extends BaseTitleActivity implements Contract.AppIn
 
     @Override
     public void showCommentLoading() {
-        srl.setRefreshing(true);
     }
 
     @Override
     public void hideCommentLoading() {
-        srl.setRefreshing(false);
     }
 
     @Override
@@ -192,7 +202,7 @@ public class AppInfoActivity extends BaseTitleActivity implements Contract.AppIn
 
     @Override
     public void showDownloadProgress(int progress) {
-        downloadView.setMessage("下载中.."+progress+"%");
+        downloadView.setMessage("下载中.." + progress + "%");
     }
 
     @Override
@@ -207,20 +217,10 @@ public class AppInfoActivity extends BaseTitleActivity implements Contract.AppIn
         btnOpen.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public void onRefresh() {
-        appInfoPresenter.refreshComments(packageId);
-    }
-
-    @Override
-    public void onLoadMore() {
-        appInfoPresenter.loadMoreComments(packageId);
-    }
-
-    @OnClick(R.id.tv_comment)
-    public void onViewClicked() {
-        commentPopWindow.show();
-    }
+//    @OnClick(R.id.tv_comment)
+//    public void onViewClicked() {
+//        commentPopWindow.show();
+//    }
 
     @OnClick(R.id.btn_download)
     public void onDownloadClicked() {

@@ -5,4 +5,5 @@ public interface Constant {
     String TOKEN = "TOKEN";
     String USERNAME = "USERNAME";
     String TITLE = "TITLE";
+    String IS_SHOW_BACK_BTN = "IS_SHOW_BACK_BTN";
 }
